@@ -1,0 +1,851 @@
+:root {
+    display: block;
+    --primary-color: #141414;
+    --secondary-color: #3e3e3e;
+    --highlight-color: #5a5a5a;
+    --accent-color: #006652;
+    --text-color: #ffffff;
+    --box-shadow-color: rgba(0, 0, 0, 0.5);
+    --warning-color: #ff0000;
+    --screen-background-color: #1f1f1f;
+    --off-black: #333333;
+}
+
+body {
+    background-color: #000000;
+    background-repeat: repeat-x;
+    background-position: top;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+*, *:before, *:after {
+    user-select: none;
+}
+
+input, input:before, input:after {
+    user-select: initial;
+}
+
+::selection {
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+::-moz-selection {
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+#canvas {
+    position: fixed;
+}
+
+#web3-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 1001;
+    transition: transform 0.3s, filter 0.3s;
+}
+
+#web3-icon.connected {
+    filter: drop-shadow(0 0 10px var(--accent-color));
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% {
+        filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.7));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(0, 255, 0, 1));
+    }
+    100% {
+        filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.7));
+    }
+}
+
+#web3-icon.disconnected {
+    filter: drop-shadow(0 0 10px var(--warning-color));
+}
+
+#web3-drawer {
+    position: fixed;
+    z-index: 1002;
+    left: 50%;
+    bottom: 0;
+    width: 90%;
+    max-width: 500px;
+    height: auto;
+    max-height: 70vh;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.446);
+    backdrop-filter: blur(10px); /* Standard syntax */
+    -webkit-backdrop-filter: blur(10px); /* Safari syntax */
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, 100%);
+    transition: transform 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0.95;
+    box-sizing: border-box;
+
+    /* Gradient */
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.446), rgba(0, 0, 0, 0.2));
+}
+
+#web3-drawer.open {
+    transform: translate(-50%, 0);
+    }
+    
+
+
+#web3-drawer .drawer-content {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+#web3-drawer .close {
+    transform: translate(50%, 0);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--highlight-color);
+}
+
+
+#walletInfo {
+    font-family: 'Robotron', sans-serif;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--screen-background-color);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px var(--box-shadow-color);
+    width: 100%;
+    max-width: 400px;
+    height: 80px;
+    box-sizing: border-box;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+#walletInfo #defaultInfo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    width: calc(100% - 40px);
+    padding: 0 20px;
+}
+
+#walletInfo .address {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    color: var(--text-color);
+    pointer-events: none;
+}
+
+#walletInfo .address .prefix {
+    flex-shrink: 0;
+    transition: transform 0.3s ease-out;
+    white-space: nowrap;
+    margin-right: 5px;
+}
+
+/* Basic styles */
+#walletInfo .address span#walletAddress {
+    pointer-events: auto;
+    cursor: pointer;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 70%;
+    transition: max-width 0.3s ease-out, transform 0.3s ease-out;
+    position: relative;
+}
+
+/* Connected state with hover effects */
+#walletInfo .address.connected span#walletAddress:hover .full {
+    display: inline;
+    visibility: visible;
+}
+
+#walletInfo .address.connected span#walletAddress:hover .shortened {
+    display: none;
+}
+
+#walletInfo .address.connected:hover span#walletAddress {
+    transform: translateX(-50px);
+}
+
+#walletInfo .address.connected:hover .prefix {
+    transform: translateX(-100%);
+}
+
+/* Default disconnected state - no hover effects */
+#walletInfo .address:not(.connected) span#walletAddress {
+    pointer-events: none;
+    transform: none;
+}
+
+#walletInfo .address:hover span#walletAddress {
+    max-width: 100%;
+    overflow: visible;
+}
+
+#walletInfo .address span#walletAddress .full {
+    display: none;
+    white-space: nowrap;
+}
+
+#walletInfo .address span#walletAddress .shortened {
+    display: inline;
+}
+
+#walletInfo .address:hover span#walletAddress .full {
+    display: inline;
+    visibility: visible;
+}
+
+#walletInfo .address:hover span#walletAddress .shortened {
+    display: inline;
+}
+
+#walletInfo .address:hover span#walletAddress {
+    transform: translateX(-50px);
+}
+
+#walletInfo .address:hover .prefix {
+    transform: translateX(-100%);
+}
+
+.copy-button.hidden {
+    display: none;
+}
+
+.copy-button:hover {
+    color: var(--accent-color);
+}
+
+.copy-icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-color);
+}
+
+#dashboard-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* General styles for buttons */
+#dashboard-buttons button {
+    margin: 5px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: 'DIN', sans-serif;
+    cursor: pointer;
+    background-color: var(--highlight-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 3px;
+    color: #ffffff;
+    transition: background-color 0.3s, transform 0.3s;
+    width: 100%;
+    max-width: 150px;
+    box-shadow: 0 0 5px var(--box-shadow-color);
+    box-sizing: border-box;
+}
+
+
+
+#dashboard-buttons button:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+#notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(55, 55, 55, 0.743);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.446);
+    font-family: 'DIN', sans-serif;
+    color: #ffffff;
+    text-align: center;
+    z-index: 1004;
+    font-size: 16px;
+    max-width: 90%;
+    word-wrap: break-word;
+    display: none;
+}
+
+/* Optional: Add a gradient similar to the web3 drawer for more cohesion */
+#notification {
+    background: linear-gradient(145deg, rgba(39, 39, 39, 0.446), rgba(0, 0, 0, 0.2));
+}
+
+/* Safari-specific fixes for leaderboard */
+#leaderboard {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 580px;
+    background-color: rgba(55, 55, 55, 0.743);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.446);
+    font-family: 'DIN', sans-serif;
+    color: #ffffff;
+    text-align: left;
+    z-index: 1004;
+    font-size: 16px;
+    display: none;
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+@media (max-width: 768px) {
+    #leaderboard {
+        width: 90%;
+        max-width: calc(100% - 10px);
+        padding: 15px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    #leaderboard .rank {
+        flex: 0 0 10%;
+        text-align: center;
+        font-size: 0.8em;
+    }
+
+    #leaderboard .wallet-address {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 5px;
+        font-size: 0.7em;
+        max-width: 100%;
+    }
+
+    #leaderboard .score {
+        flex: 0 0 15%;
+        text-align: right;
+        font-weight: bold;
+        font-size: 0.8em;
+        color: #FFD700;
+    }
+}
+
+#leaderboard {
+    background: linear-gradient(145deg, rgba(39, 39, 39, 0.446), rgba(0, 0, 0, 0.2));
+}
+
+#leaderboard .leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#leaderboard .rank {
+    flex: 0 0 10%;
+    text-align: center;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#leaderboard .wallet-address {
+    flex: 1 1 auto;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0;
+}
+
+#leaderboard .score {
+    flex: 0 0 12%;
+    text-align: right;
+    font-weight: bold;
+    color: #FFD700;
+}
+
+#leaderboard h2 {
+    margin-top: 0;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-family: 'DIN', sans-serif;
+}
+
+#leaderboard div {
+    margin-bottom: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: 'DIN', sans-serif;
+}
+
+canvas {
+    image-rendering: optimizeSpeed;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
+    -ms-touch-action: none;
+}
+
+.ani_hack {
+    -webkit-perspective: 1000;
+    -webkit-backface-visibility: hidden;
+    -webkit-touch-callout: none;
+    user-select: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+@font-face {
+    font-family: 'Robotron';
+    src: url('../modal-project/robotronfontelit.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'DIN';
+    src: url('../modal-project/DIN-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Notification inside the modal */
+#notificationMessage {
+    font-family: 'Robotron', sans-serif;
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: 2px;
+    padding: 20px;
+    background-color: var(--screen-background-color);
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 400px;
+    display: none;
+}
+
+/* ANIMAR */
+
+/* Leaderboard Slide Animation */
+@keyframes leaderboardSlideIn {
+    0% {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes leaderboardSlideOut {
+    0% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+}
+
+#leaderboard {
+    animation: leaderboardSlideIn 0.3s ease-out forwards;
+}
+
+#leaderboard.hide {
+    animation: leaderboardSlideOut 0.3s ease-out forwards;
+}
+
+@keyframes notificationSlideIn {
+    0% {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes notificationSlideOut {
+    0% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+}
+
+#notification {
+    animation: notificationSlideIn 0.3s ease-out forwards;
+}
+
+#notification.hide {
+    animation: notificationSlideOut 0.3s ease-out forwards;
+}
+
+/* Loading Dots Animation */
+@keyframes loadingDots {
+    0% {
+        content: '';
+    }
+    33% {
+        content: '.';
+    }
+    66% {
+        content: '..';
+    }
+    100% {
+        content: '...';
+    }
+}
+
+.connecting-text::after {
+    content: '';
+    animation: loadingDots 1s steps(3, end) infinite;
+}
+
+#initiateTransactionButton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 250px;  /* Keeping the wider button */
+    height: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #FF4500;  /* Red background */
+    border: 2px solid #FF6347;   /* Red border */
+    border-radius: 3px;
+    color: #ffffff;
+    transition: background-color 0.3s, transform 0.3s, width 0.3s;
+    box-shadow: 0 0 5px #FF6347; /* Red shadow */
+    box-sizing: border-box;
+    overflow: hidden;
+    background-image: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.3) 50%,  /* Increase intensity of shine */
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    background-size: 300% 100%;  /* Extend the size to cover more area */
+    animation: continuousShimmer 4s linear infinite;
+}
+
+@keyframes continuousShimmer {
+    0% {
+        background-position: 300% 0;
+    }
+    100% {
+        background-position: -300% 0;
+    }
+}
+
+
+
+
+
+/* Applying the animation to the active state */
+#initiateTransactionButton.active {
+
+    background-color: #FF4500; /* Keeps the red background to indicate activity */
+    border-color: #FF6347; /* Keeps the orange border */
+    color: #FFFFFF;
+    cursor: progress; /* Changes cursor to indicate processing */
+}
+
+
+
+
+#initiateTransactionButton.confirming {
+    background-color: var(--secondary-color);
+}
+
+
+#initiateTransactionButton.pending {
+    background-color: #FFD700; /* Orange color similar to the leaderboard score */
+    animation: fadeInOut 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+
+
+
+
+
+.loading-carousel {
+    margin-left: 10px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: carouselLoading 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+
+#initiateTransactionButton.success {
+    background-color: #28a745;
+    border-color: #28a745;
+    transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+    box-shadow: 0 0 20px rgba(40, 167, 70, 0);
+}
+
+@keyframes subtleGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+}
+
+#initiateTransactionButton.success {
+    animation: subtleGlow 0.3s ease-in-out;
+}
+
+.loading-carousel {
+    margin-left: 10px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: carouselLoading 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes carouselLoading {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#initiateTransactionButton.confirming .connecting-text {
+    display: inline;
+}
+
+#initiateTransactionText {
+    display: inline;
+    vertical-align: middle;
+    transition: opacity 0.3s ease-out;
+}
+
+.connecting-text {
+    margin-left: 5px;
+    display: inline;
+    vertical-align: middle;
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+#initiateTransactionButton.confirming #initiateTransactionText {
+    opacity: 0;
+}
+
+#initiateTransactionButton.confirming .connecting-text {
+    opacity: 1;
+}
+
+
+
+
+
+/* Pulsing animation for App running */
+@keyframes pulsingBackground {
+    0% {
+        background-color: #512eff; /* Start with the deep blue */
+    }
+    50% {
+        background-color: #6547fd; /* Slightly lighter blue */
+    }
+    100% {
+        background-color: rgb(37, 0, 111); /* Return to the deep blue */
+    }
+
+    50% {
+        background-color: #512eff; /* Slightly lighter blue */
+    }
+    0% {
+        background-color: rgb(37, 0, 111); /* Return to the deep blue */
+    }
+}
+
+/* CSS class to apply the pulsing effect */
+.pulsing-background {
+    animation: pulsingBackground 3s infinite ease-in-out; /* Slow, satisfying pulse */
+    color: #ffffff; /* Ensure the text color is white */
+    cursor: not-allowed; /* Make the button non-clickable */
+}
+
+
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    from, to {
+        border-right-color: transparent;
+    }
+    50% {
+        border-right-color: white;
+    }
+}
+
+.typing-animation {
+    overflow: hidden;
+    border-right: 0.15em solid white;
+    white-space: nowrap;
+    animation: typing 2s steps(20, end), blink-caret 0.75s step-end infinite;
+}
+
+
+@keyframes expandShrinkBorder {
+    0%, 100% {
+        border-width: 2px;
+        transform: scale(1);
+    }
+    50% {
+        border-width: 4px;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes expandShrinkBorder {
+    0%, 100% {
+        border-width: 2px;
+        transform: scale(1);
+    }
+    50% {
+        border-width: 4px;
+        transform: scale(1.05);
+    }
+}
+
+
+
+@keyframes expandShrinkBorder {
+    0%, 100% {
+        border-width: 2px;
+        transform: scale(1);
+    }
+    50% {
+        border-width: 4px;
+        transform: scale(1.05);
+    }
+}
+
+
+.default-button-style {
+    background-color: #4CAF50; /* Your new default color */
+    color: #ffffff; /* Text color */
+    border: 1px solid #3e3e3e;
+}
+
+.hot-button-style {
+    background-color: #FF4500 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FF6347 !important;
+    animation: expandShrinkBorder 1.5s infinite ease-in-out;
+}
+
+.clicked {
+    background-color: #FF4500;
+    border: 2px solid #FF6347;
+    animation: none; /* Ensure animation stops on click */
+}
+
+
+/* Add this to your CSS */
+.red-button-style {
+    background-color: #FF4500 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FF6347 !important;
+    animation: expandShrinkBorder 1.5s infinite ease-in-out;
+}
+
+.clicked {
+    background-color: #FF4500;
+    border: 2px solid #FF6347;
+    animation: none; /* Ensure animation stops on click */
+}
+
+
+
+
+
